@@ -21,10 +21,13 @@ public class DatabaseVercitle extends AbstractVerticle{
 //                .put( "maximumPoolSize", 30 );
 
 
-
+//    url=jdbc:sqlserver://192.168.0.22:1433;DatabaseName=UFDATA_002_2017
+//    driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver
     JsonObject config = new JsonObject()
         .put("provider_class", "io.vertx.ext.jdbc.spi.impl.HikariCPDataSourceProvider")
+//        .put("driverClassName","com.microsoft.sqlserver.jdbc.SQLServerDriver")//sqlserver
         .put("jdbcUrl", "jdbc:mysql://localhost:3306/dlb?useSSL=true")
+//        .put("jdbcUrl", "jdbc:sqlserver://192.168.0.22:1433;DatabaseName=UFDATA_002_2017")
         .put("username", "root")
         .put("password","root")
 //                .put("driverClassName", "org.postgresql.Driver")

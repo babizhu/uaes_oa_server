@@ -22,6 +22,17 @@
       <version>2.7.4</version>
     </dependency>
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-service-proxy</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <version>${vertx.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
@@ -83,7 +94,36 @@
   <build>
     <finalName>quant_trader</finalName>
     <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.7.0</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <useIncrementalCompilation>false</useIncrementalCompilation>
 
+          <annotationProcessors>
+            <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+          </annotationProcessors>
+          <generatedSourcesDirectory>${project.basedir}/src/main/generated</generatedSourcesDirectory>
+          <compilerArgs>
+            <arg>-AoutputDirectory=${project.basedir}/src/main</arg>
+          </compilerArgs>
+
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.0.0</version>
+
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${project.basedir}/src/main/generated</directory>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

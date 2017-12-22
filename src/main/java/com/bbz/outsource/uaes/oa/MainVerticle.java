@@ -13,13 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @author liulaoye
+ */
 @Slf4j
 public class MainVerticle extends AbstractVerticle {
-
-//    private static final int PORT = 8000;
-
-//    private HttpClient httpClient;
-
 
   @Override
   public void start(Future<Void> startFuture) {
@@ -28,7 +26,7 @@ public class MainVerticle extends AbstractVerticle {
     Future<String> dbVerticleDeployment = Future.future();
     vertx.deployVerticle(new DatabaseVercitle(), dbOptions, dbVerticleDeployment.completer());
     dbVerticleDeployment.compose(id -> {
-      log.debug("开始初始化HttpServerVerticle");
+//      log.debug("开始初始化HttpServerVerticle");
       Future<String> httpVerticleDeployment = Future.future();
       DeploymentOptions options = new DeploymentOptions().setConfig(
           config().getJsonObject("server").
@@ -53,7 +51,7 @@ public class MainVerticle extends AbstractVerticle {
   public static void main(String[] args) throws IOException {
 
     Student student = new Student("刘老爷",23);
-    log.debug(student.toString());
+//    log.debug(student.toString());
 
     final VertxOptions vertxOptions = new VertxOptions();
     vertxOptions.setBlockedThreadCheckInterval(1000000);
@@ -65,12 +63,12 @@ public class MainVerticle extends AbstractVerticle {
     String content = new String(Files.readAllBytes(Paths.get("resources/application-conf.json")));
     final JsonObject config = new JsonObject(content);
 
-    log.info(config.toString());
+//    log.info(config.toString());
     options.setConfig(config);
 
     vertx.deployVerticle(MainVerticle.class.getName(), options, res -> {
       if (res.succeeded()) {
-        log.info(" server started ");
+        System.out.println(" server started ");
       } else {
         res.cause().printStackTrace();
       }

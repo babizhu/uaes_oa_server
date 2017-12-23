@@ -26,8 +26,6 @@ public class AttendanceDatabaseServiceImpl implements AttendanceDatabaseService 
       if (res.succeeded()) {
         ResultSet result = res.result();
         List<JsonArray> pages = result.getResults();
-//        System.out.println(pages);
-//        System.out.println(pages.size());
         resultHandler.handle(Future.succeededFuture(pages));
       } else {
         res.cause().printStackTrace();
@@ -35,4 +33,40 @@ public class AttendanceDatabaseServiceImpl implements AttendanceDatabaseService 
     });
     return this;
   }
+
+  @Override
+  public AttendanceDatabaseService query(JsonObject condition,
+      Handler<AsyncResult<String>> resultHandler) {
+    System.out.println(condition);
+
+    resultHandler.handle(Future.succeededFuture("abcdffghkdk"));
+
+    return this;
+  }
+//
+//  @Override
+//  public AttendanceDatabaseService delete(JsonObject condition,
+//      Handler<AsyncResult<List<JsonArray>>> resultHandler) {
+//    return this;
+//  }
+//
+//  @Override
+//  public AttendanceDatabaseService create(JsonObject condition,
+//      Handler<AsyncResult<List<JsonArray>>> resultHandler) {
+//    return this;
+//  }
+//
+//  @Override
+//  public AttendanceDatabaseService update(JsonObject condition,
+//      Handler<AsyncResult<List<JsonArray>>> resultHandler) {
+//    return this;
+//  }
+//
+  @Override
+  public void doSomething(String str,Handler<AsyncResult<String>> resultHandler) {
+    System.out.println(str);
+    resultHandler.handle(Future.succeededFuture("刘老爷"));
+  }
+
+
 }

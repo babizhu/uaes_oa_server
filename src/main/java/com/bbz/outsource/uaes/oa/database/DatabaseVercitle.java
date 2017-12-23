@@ -11,28 +11,29 @@ import io.vertx.serviceproxy.ServiceBinder;
  */
 public class DatabaseVercitle extends AbstractVerticle {
 
-    @Override
-    public void start() {
-        JsonObject config = new JsonObject()
-                .put("provider_class", "io.vertx.ext.jdbc.spi.impl.HikariCPDataSourceProvider")
+  @Override
+  public void start() {
+    JsonObject config = new JsonObject()
+        .put("provider_class", "io.vertx.ext.jdbc.spi.impl.HikariCPDataSourceProvider")
 //        .put("driverClassName","com.microsoft.sqlserver.jdbc.SQLServerDriver")//sqlserver
-                .put("jdbcUrl", "jdbc:mysql://localhost:3306/uaes_oa?useSSL=true")
+        .put("jdbcUrl", "jdbc:mysql://localhost:3306/uaes_oa?useSSL=true")
 //        .put("jdbcUrl", "jdbc:sqlserver://192.168.0.22:1433;DatabaseName=UFDATA_002_2017")
-                .put("username", "root")
-                .put("password", "root")
+        .put("username", "root")
+        .put("password", "root")
 //                .put("driverClassName", "org.postgresql.Driver")
-                .put("maximumPoolSize", 10);
+        .put("maximumPoolSize", 10);
 
-        JDBCClient dbClient = JDBCClient.createShared(vertx, config);
+    JDBCClient dbClient = JDBCClient.createShared(vertx, config);
+//        JDBCClient dbClient = null;
 
-        AttendanceDatabaseService attendanceDatabaseService = AttendanceDatabaseService.create(dbClient);
+    AttendanceDatabaseService attendanceDatabaseService = AttendanceDatabaseService.create(dbClient);
 //    ProxyHelper.registerService(AttendanceDatabaseService.class, vertx, attendanceDatabaseService, "db");
-        new ServiceBinder(vertx)
-                .setAddress("db")
-                .register(AttendanceDatabaseService.class, attendanceDatabaseService);
+    new ServiceBinder(vertx)
+        .setAddress("db")
+        .register(AttendanceDatabaseService.class, attendanceDatabaseService);
 
 
-    }
+  }
 //
 //  private void getAll(){
 //    dbClient.query("select * from ask_for_leave", res -> {

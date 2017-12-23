@@ -27,4 +27,23 @@ public interface AttendanceDatabaseService {
 
   @Fluent
   AttendanceDatabaseService search(JsonObject condition, Handler<AsyncResult<List<JsonArray>>> resultHandler);
+
+
+  @Fluent
+  AttendanceDatabaseService query(JsonObject condition, Handler<AsyncResult<String>> resultHandler);
+
+
+//  @Fluent
+//  AttendanceDatabaseService delete(JsonObject condition, Handler<AsyncResult<List<JsonArray>>> resultHandler);
+//
+//
+//  @Fluent
+//  AttendanceDatabaseService create(JsonObject condition, Handler<AsyncResult<List<JsonArray>>> resultHandler);
+//
+//
+//  @Fluent
+//  AttendanceDatabaseService update(JsonObject condition, Handler<AsyncResult<List<JsonArray>>> resultHandler);
+
+
+  void doSomething(String str,Handler<AsyncResult<String >> resultHandler);
 }

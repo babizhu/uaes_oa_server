@@ -1,6 +1,6 @@
 @ModuleGen(groupPackage = "com.bbz.outsource.uaes.oa.database", name = "attendance-database")
 
-package com.bbz.outsource.uaes.oa.database;
+package com.bbz.outsource.uaes.oa.database.attendance;
 
 
 

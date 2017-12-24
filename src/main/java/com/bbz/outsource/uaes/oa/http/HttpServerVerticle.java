@@ -10,6 +10,12 @@ public class HttpServerVerticle extends AbstractVerticle {
   public void start(Future<Void> startFuture) throws Exception {
     super.start(startFuture);
     dbService = AttendanceDatabaseService.createProxy(vertx, "db");
-    dbService.search(null, System.out::println);
+    dbService.search(null, res->{
+      if(res.succeeded()){
+        System.out.println(res.result());
+      }else {
+        res.cause().printStackTrace();
+      }
+    });
   }
 }

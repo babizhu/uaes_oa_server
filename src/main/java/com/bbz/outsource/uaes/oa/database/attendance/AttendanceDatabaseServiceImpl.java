@@ -16,7 +16,7 @@ public class AttendanceDatabaseServiceImpl implements AttendanceDatabaseService 
 
   private final JDBCClient dbClient;
 
-  public AttendanceDatabaseServiceImpl(JDBCClient dbClient) {
+  AttendanceDatabaseServiceImpl(JDBCClient dbClient) {
     this.dbClient = dbClient;
   }
 
@@ -26,8 +26,8 @@ public class AttendanceDatabaseServiceImpl implements AttendanceDatabaseService 
       if (res.succeeded()) {
         ResultSet result = res.result();
         List<JsonArray> pages = result.getResults();
-        System.out.println(pages);
-        System.out.println(pages.size());
+//        System.out.println(pages);
+//        System.out.println(pages.size());
         resultHandler.handle(Future.succeededFuture(pages));
       } else {
         res.cause().printStackTrace();

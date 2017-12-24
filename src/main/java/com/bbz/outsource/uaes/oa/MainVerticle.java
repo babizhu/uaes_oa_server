@@ -2,16 +2,13 @@ package com.bbz.outsource.uaes.oa;
 
 import com.bbz.outsource.uaes.oa.database.DatabaseVercitle;
 import com.bbz.outsource.uaes.oa.http.HttpServerVerticle;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author liulaoye
@@ -50,7 +47,7 @@ public class MainVerticle extends AbstractVerticle {
 
   public static void main(String[] args) throws IOException {
 
-    Student student = new Student("刘老爷",23);
+//    Student student = new Student("刘老爷",23);
 //    log.debug(student.toString());
 
     final VertxOptions vertxOptions = new VertxOptions();

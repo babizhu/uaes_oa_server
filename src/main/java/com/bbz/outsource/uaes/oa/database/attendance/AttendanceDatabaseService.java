@@ -1,7 +1,6 @@
 package com.bbz.outsource.uaes.oa.database.attendance;
 
 
-import com.bbz.outsource.uaes.oa.database.IDatabase;
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
@@ -12,16 +11,32 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
-
 import java.util.List;
 
+/**
+ * @author liulaoye
+ */
 @ProxyGen
 @VertxGen
-public interface AttendanceDatabaseService extends IDatabase{
+public interface AttendanceDatabaseService{
+
+  /**
+   * create
+   *
+   * @param dbClient  dbClient
+   * @return this
+   */
   @GenIgnore
   static AttendanceDatabaseService create(JDBCClient dbClient) {
     return new AttendanceDatabaseServiceImpl(dbClient);
   }
+
+  /**
+   * createProxy
+   * @param vertx     vertx
+   * @param address   address
+   * @return  AttendanceDatabaseServiceVertxEBProxy
+   */
   static AttendanceDatabaseService createProxy(Vertx vertx, String address) {
     return new AttendanceDatabaseServiceVertxEBProxy(vertx, address);
   }
@@ -48,7 +63,7 @@ public interface AttendanceDatabaseService extends IDatabase{
    * @return              this
    */
   @Fluent
-  AttendanceDatabaseService create(JsonArray leave,Handler<AsyncResult<JsonArray>> resultHandler);
+  AttendanceDatabaseService create(JsonArray leave,Handler<AsyncResult<Integer>> resultHandler);
 //
 //
 //  @Fluent

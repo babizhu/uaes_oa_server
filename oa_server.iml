@@ -14,6 +14,7 @@
           <option name="pluginClasspaths">
             <array />
           </option>
+          <option name="coroutinesState" value="enable" />
         </compilerArguments>
       </configuration>
     </facet>
@@ -57,8 +58,16 @@
     <orderEntry type="library" name="Maven: io.vertx:vertx-web:3.5.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-auth-common:3.5.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-bridge-common:3.5.0" level="project" />
-    <orderEntry type="library" name="Maven: io.vertx:vertx-jdbc-client:3.5.0" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-mysql-postgresql-client:3.5.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-sql-common:3.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.12.3" level="project" />
+    <orderEntry type="library" name="Maven: com.github.mauricio:postgresql-async_2.12:0.2.21" level="project" />
+    <orderEntry type="library" name="Maven: com.github.mauricio:db-async-common_2.12:0.2.21" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.7" level="project" />
+    <orderEntry type="library" name="Maven: org.joda:joda-convert:1.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.21.0-GA" level="project" />
+    <orderEntry type="library" name="Maven: com.github.mauricio:mysql-async_2.12:0.2.21" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-jdbc-client:3.5.0" level="project" />
     <orderEntry type="library" name="Maven: com.mchange:c3p0:0.9.5.2" level="project" />
     <orderEntry type="library" name="Maven: com.mchange:mchange-commons-java:0.2.11" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
@@ -73,5 +82,10 @@
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.2.10" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jetbrains.kotlin:kotlin-test:1.2.10" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-lang-kotlin-coroutines:3.5.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jre8:1.1.51" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib-jre7:1.1.51" level="project" />
+    <orderEntry type="library" name="Maven: org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.1" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-lang-kotlin:3.5.0" level="project" />
   </component>
 </module>

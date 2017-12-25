@@ -81,7 +81,7 @@ public class MainVerticle extends AbstractVerticle {
 //
 //        vertx.deployVerticle( MainVerticle.class.getName(), options, res -> {
 //            if( res.succeeded() ) {
-//                System.out.println( "web server started at port " + PORT + ", please click http://localhost:" + PORT + " to visit!" );
+//                System.out.println( "http server started at port " + PORT + ", please click http://localhost:" + PORT + " to visit!" );
 //            } else {
 //                res.cause().printStackTrace();
 //            }

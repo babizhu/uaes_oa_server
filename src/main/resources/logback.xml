@@ -12,7 +12,7 @@
 
   <!--</logger>-->
 
-  <root level="Debug" >
+  <root level="Error" >
     <appender-ref ref="STDOUT"/>
   </root>
 

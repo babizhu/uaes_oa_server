@@ -3,6 +3,7 @@ package com.bbz.outsource.uaes.oa.kt.http
 import com.bbz.outsource.uaes.oa.kt.LaunchVerticle
 import com.bbz.outsource.uaes.oa.kt.http.handlers.UserHandler
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
 
 fun LaunchVerticle.createHttpServer() {
@@ -12,7 +13,7 @@ fun LaunchVerticle.createHttpServer() {
 
     vertx.createHttpServer()
             .requestHandler(router::accept)
-            .listen(8080, {
+            .listen(8000, {
                 if (it.succeeded()) {
                     logger.info("http server start !!! ${it.result().actualPort()}")
                 } else {
@@ -23,16 +24,15 @@ fun LaunchVerticle.createHttpServer() {
 }
 
 private fun LaunchVerticle.initHandler(mainRouter: Router) {
-
+    mainRouter.route().handler(BodyHandler.create())
     dispatcherHandler(mainRouter)
     adapterReactHandler(mainRouter)//这个只能放在倒数第二的位置
     mainRouter.route().handler(StaticHandler.create())//静态文件处理，必须放在最后
-//        router.route().handler(BodyHandler.create())
-//                .failureHandler(errorHandler)
+//                mainRouter.failureHandler(errorHandler)
 }
 
 private fun LaunchVerticle.dispatcherHandler(mainRouter: Router) {
-    mainRouter.mountSubRouter("/user", UserHandler().addRouter(Router.router(vertx)))
+    mainRouter.mountSubRouter("/user", UserHandler(dbClient).addRouter(Router.router(vertx)))
 }
 
 /**

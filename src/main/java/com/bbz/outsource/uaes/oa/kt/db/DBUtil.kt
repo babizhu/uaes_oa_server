@@ -95,18 +95,18 @@ suspend fun executeSQL(connection: SQLConnection, sql: String) {
 }
 
 suspend fun fluentTx(client: SQLClient, sqlAndParamsMap: Map<String, JsonArray>): Boolean {
-  val connection1 = getConnection(client)
-  connection1.use {
+  val connection = getConnection(client)
+  connection.use {
       return try {
-          beginTx(connection1)
+          beginTx(connection)
           for ((sql, params) in sqlAndParamsMap) {
-              updateWithParams(connection1, sql, params)
+              updateWithParams(connection, sql, params)
           }
 
-          commitTx(connection1)
+          commitTx(connection)
           true
       } catch (e: Exception) {
-          rollbackTx(connection1)
+          rollbackTx(connection)
           false
       }
   }

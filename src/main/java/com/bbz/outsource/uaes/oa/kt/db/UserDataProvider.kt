@@ -13,4 +13,10 @@ class UserDataProvider(dbClient: SQLClient) : AbstractDataProvider(dbClient) {
                 json { data }
         )
     }
+    suspend fun update(data: JsonArray) : UpdateResult {
+        return  updateWithParams(dbClient,
+                "INSERT INTO user (name) VALUES (?)",
+                json { data }
+        )
+    }
 }

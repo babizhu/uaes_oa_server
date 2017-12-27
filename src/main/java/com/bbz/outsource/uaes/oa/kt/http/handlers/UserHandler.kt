@@ -23,7 +23,7 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
     private suspend fun save(ctx: RoutingContext) {
         val userJson = ctx.bodyAsJson
         val postId = userJson.getString(JsonConsts.DB_ID)
-
+        create(ctx, userJson)
         val isCreate = postId == "-1"
         val result: UpdateResult
         result = if (isCreate) {

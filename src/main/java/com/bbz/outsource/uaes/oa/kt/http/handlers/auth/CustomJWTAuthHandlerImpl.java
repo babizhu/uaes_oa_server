@@ -26,13 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 利用jwt自定义的权限检测实现，
  */
-@Slf4j
+
 public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuthHandler{
+  private static Logger log = LoggerFactory.getLogger(CustomJWTAuthHandlerImpl.class);
     protected final EventBus eventBus;
     private static final String HANDLER_PACKAGE_BASE = "org.bbz.stock.quanttrader.http.handler";
     /**

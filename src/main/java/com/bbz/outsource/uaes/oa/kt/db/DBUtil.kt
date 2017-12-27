@@ -55,6 +55,7 @@ suspend fun updateWithParams(connection: SQLConnection, sql: String, args: JsonA
 suspend fun updateWithParams(client: SQLClient, sql: String, args: JsonArray): UpdateResult {
   return awaitResult {
     client.updateWithParams(sql, args, it)
+
   }
 }
 

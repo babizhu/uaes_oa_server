@@ -61,10 +61,12 @@
     <orderEntry type="library" name="Maven: io.netty:netty-resolver:4.1.15.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-resolver-dns:4.1.15.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-codec-dns:4.1.15.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-auth-jwt:3.5.0" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-auth-common:3.5.0" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-jwt:3.5.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.16.16" level="project" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:6.0.5" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-web:3.5.0" level="project" />
-    <orderEntry type="library" name="Maven: io.vertx:vertx-auth-common:3.5.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-bridge-common:3.5.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-mysql-postgresql-client:3.5.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-sql-common:3.5.0" level="project" />

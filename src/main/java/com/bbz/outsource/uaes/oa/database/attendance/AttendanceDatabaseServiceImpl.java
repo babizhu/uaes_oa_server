@@ -62,7 +62,6 @@ public class AttendanceDatabaseServiceImpl implements AttendanceDatabaseService 
                       res1.cause().printStackTrace();
                   }
                 } );
-
             } else {
                 resultHandler.handle( Future.failedFuture( res.cause() ) );
             }

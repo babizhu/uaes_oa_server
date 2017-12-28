@@ -23,20 +23,14 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
     private suspend fun save(ctx: RoutingContext) {
         val userJson = ctx.bodyAsJson
         val postId = userJson.getString(JsonConsts.DB_ID)
-        create(ctx, userJson)
-        val isCreate = postId == "-1"
+        val isCreate = (postId == null)
         val result: UpdateResult
         result = if (isCreate) {
-            create(ctx, userJson)
+            create( userJson)
         } else {
-            update(ctx, userJson)
+            update( userJson)
         }
 
-
-//        val bodyAsJson = ctx.bodyAsJson
-//        val params = JsonArray()
-//        params.add(bodyAsJson.getValue("name"))
-//        val updateResult = dataProvider.create(params)
         ctx.response().end(result.keys.encode())
     }
     private suspend fun del(ctx: RoutingContext) {
@@ -46,14 +40,14 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
         val updateResult = dataProvider.create(params)
         ctx.response().end(updateResult.keys.encode())
     }
-    private suspend fun create(ctx: RoutingContext,userJson:JsonObject): UpdateResult {
-        val bodyAsJson = ctx.bodyAsJson
+    private suspend fun create(userJson:JsonObject): UpdateResult {
+
         val params = JsonArray()
-        params.add(bodyAsJson.getValue("name"))
+        params.add(userJson.getValue("name"))
         return dataProvider.create(params)
 //        ctx.response().end(updateResult.keys.encode())
     }
-    private suspend fun update(ctx: RoutingContext,userJson:JsonObject) : UpdateResult{
+    private suspend fun update(userJson:JsonObject) : UpdateResult{
 
         val params = JsonArray()
         params.add(userJson.getValue("name"))

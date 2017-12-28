@@ -6,8 +6,10 @@ import com.bbz.outsource.uaes.oa.consts.ErrorCode
 import com.bbz.outsource.uaes.oa.consts.ErrorCodeException
 import com.bbz.outsource.uaes.oa.kt.http.createHttpServer
 import io.vertx.core.Vertx
+import io.vertx.core.VertxOptions
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.asyncsql.MySQLClient
+import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.sql.SQLClient
 import io.vertx.ext.web.Route
 import io.vertx.ext.web.RoutingContext
@@ -19,22 +21,25 @@ import kotlinx.coroutines.experimental.launch
 
 
 /**
- * 重点 演示对 MySQL 的操作， 利用 协程 写出类似同步的代码
- * Created by sweet on 2017/12/21.
+ * MainVerticle
  * ---------------------------
  */
 fun main(args: Array<String>) {
 //    System.setProperty("vertx.logger-delegate-factory-class-name",
 //            "io.vertx.core.logging.Log4j2LogDelegateFactory")
-    Vertx.vertx().deployVerticle(LaunchVerticle())
+    val vertxOptions = VertxOptions()
+    vertxOptions.blockedThreadCheckInterval = 1000000
+    val vertx = Vertx.vertx(vertxOptions)
+    vertx.deployVerticle(MainVerticle())
 }
 
 @Suppress("unused")
-class LaunchVerticle : CoroutineVerticle() {
+class MainVerticle : CoroutineVerticle() {
     companion object {
         val logger = LoggerFactory.getLogger(this.javaClass)!!
     }
 
+    lateinit var jwtAuthProvider: JWTAuth
     lateinit var dbClient: SQLClient
 
     suspend override fun start() {

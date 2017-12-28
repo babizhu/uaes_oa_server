@@ -6,7 +6,6 @@ import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequireRoles;
 import com.google.common.reflect.ClassPath;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
@@ -37,7 +36,6 @@ import org.slf4j.LoggerFactory;
 public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuthHandler {
 
   private static Logger log = LoggerFactory.getLogger(CustomJWTAuthHandlerImpl.class);
-  protected final EventBus eventBus;
   private static final String HANDLER_PACKAGE_BASE = "com.bbz.outsource.uaes.oa.kt.http.handlers";
   /**
    * 仅供内部使用，原则上初始化之后不允许修改，否则可能造成多线程竞争，如果需要修改，可考虑采用vertx.sharedData()
@@ -113,11 +111,10 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
   }
 
 
-  public CustomJWTAuthHandlerImpl(EventBus eventBus, JWTAuth authProvider) {
+  public CustomJWTAuthHandlerImpl(JWTAuth authProvider) {
 //        authProvider.a
 
     super(authProvider);
-    this.eventBus = eventBus;
     initRoles();
   }
 
@@ -258,5 +255,9 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
   @Override
   public void parseCredentials(RoutingContext routingContext, Handler<AsyncResult<JsonObject>> handler) {
 
+  }
+
+  public static void main(String[] args) {
+    System.out.println(CustomJWTAuthHandlerImpl.authMap);
   }
 }

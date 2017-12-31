@@ -2,14 +2,16 @@
 
 package com.bbz.outsource.uaes.oa.kt
 
-import com.bbz.outsource.uaes.oa.consts.ErrorCode
-import com.bbz.outsource.uaes.oa.consts.ErrorCodeException
+import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
+import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
 import com.bbz.outsource.uaes.oa.kt.http.createHttpServer
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.asyncsql.MySQLClient
+import io.vertx.ext.auth.KeyStoreOptions
 import io.vertx.ext.auth.jwt.JWTAuth
+import io.vertx.ext.auth.jwt.JWTAuthOptions
 import io.vertx.ext.sql.SQLClient
 import io.vertx.ext.web.Route
 import io.vertx.ext.web.RoutingContext
@@ -57,6 +59,13 @@ class MainVerticle : CoroutineVerticle() {
                     "database" to "uaes_oa"
             )
         })
+
+        val jwtAuthOptions = JWTAuthOptions()
+                .setKeyStore(KeyStoreOptions()
+                        .setPath("./resources/keystore.jceks")
+                        .setType("jceks")
+                        .setPassword("secret"))
+        jwtAuthProvider = JWTAuth.create(vertx, jwtAuthOptions)
         createHttpServer()
     }
 }

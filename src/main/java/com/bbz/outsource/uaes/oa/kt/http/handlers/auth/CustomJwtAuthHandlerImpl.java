@@ -1,6 +1,7 @@
 package com.bbz.outsource.uaes.oa.kt.http.handlers.auth;
 
-import com.bbz.outsource.uaes.oa.consts.ErrorCode;
+import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode;
+import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException;
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequirePermissions;
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequireRoles;
 import com.google.common.reflect.ClassPath;
@@ -16,26 +17,22 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.JWTAuthHandler;
 import io.vertx.ext.web.handler.impl.AuthHandlerImpl;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 利用jwt自定义的权限检测实现，
  * @author liulaoye
  */
 
-public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuthHandler {
+public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuthHandler {
 
-  private static Logger log = LoggerFactory.getLogger(CustomJWTAuthHandlerImpl.class);
+  private static Logger log = LoggerFactory.getLogger(CustomJwtAuthHandlerImpl.class);
   private static final String HANDLER_PACKAGE_BASE = "com.bbz.outsource.uaes.oa.kt.http.handlers";
   /**
    * 仅供内部使用，原则上初始化之后不允许修改，否则可能造成多线程竞争，如果需要修改，可考虑采用vertx.sharedData()
@@ -111,7 +108,7 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
   }
 
 
-  public CustomJWTAuthHandlerImpl(JWTAuth authProvider) {
+  public CustomJwtAuthHandlerImpl( JWTAuth authProvider) {
 //        authProvider.a
 
     super(authProvider);
@@ -141,20 +138,7 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
 
     final HttpServerRequest request = context.request();
 
-//        if( request.method() == HttpMethod.OPTIONS && request.headers().get( HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS ) != null ) {
-//            for( String ctrlReq : request.headers().get( HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS ).split( "," ) ) {
-//                if( ctrlReq.equalsIgnoreCase( "authorization" ) ) {
-//                    // this request has auth in access control
-//                    context.next();
-//                    return;
-//                }
-//            }
-//        }
 //
-//            if( skip != null && context.normalisedPath().startsWith( skip ) ) {
-//                context.next();
-//                return;
-//            }
 
     final String authorization = request.headers().get(HttpHeaders.AUTHORIZATION);
     String token = null;
@@ -175,8 +159,8 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
       }
     } else {
       log.warn("No Authorization header was found");
-      context.fail(401);
-      return;
+      throw new ErrorCodeException( ErrorCode.USER_NOT_LOGIN );
+//      return;
     }
 
     JsonObject authInfo = new JsonObject().put("jwt", token).put("options", options);
@@ -258,6 +242,6 @@ public class CustomJWTAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
   }
 
   public static void main(String[] args) {
-    System.out.println(CustomJWTAuthHandlerImpl.authMap);
+    System.out.println( CustomJwtAuthHandlerImpl.authMap);
   }
 }

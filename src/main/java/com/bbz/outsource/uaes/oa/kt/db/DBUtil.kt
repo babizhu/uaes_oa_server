@@ -28,7 +28,7 @@ suspend fun queryWithParams(connection: SQLConnection, sql: String, args: JsonAr
   }
 }
 
-suspend fun queryWithsParams(client: SQLClient, sql: String, args: JsonArray): ResultSet {
+suspend fun queryWithParams(client: SQLClient, sql: String, args: JsonArray): ResultSet {
   return awaitResult {
     client.queryWithParams(sql, args, it)
   }

@@ -1,8 +1,9 @@
-package com.bbz.outsource.uaes.oa.kt.http.handlers
+package com.bbz.outsource.uaes.oa.kt.http.handlers.user
 
-import com.bbz.outsource.uaes.oa.consts.JsonConsts
+import com.bbz.outsource.uaes.oa.kt.consts.JsonConsts
 import com.bbz.outsource.uaes.oa.kt.coroutineHandler
 import com.bbz.outsource.uaes.oa.kt.db.UserDataProvider
+import com.bbz.outsource.uaes.oa.kt.http.handlers.AbstractHandler
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequirePermissions
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.sql.SQLClient

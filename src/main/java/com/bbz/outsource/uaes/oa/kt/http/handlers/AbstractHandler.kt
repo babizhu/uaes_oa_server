@@ -1,7 +1,7 @@
 package com.bbz.outsource.uaes.oa.kt.http.handlers
 
-import com.bbz.outsource.uaes.oa.consts.ErrorCode
-import com.bbz.outsource.uaes.oa.consts.ErrorCodeException
+import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
+import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
 import io.vertx.core.json.JsonObject
 
 /**

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
  * @author liulaoye
  */
 
+@SuppressWarnings("AlibabaRemoveCommentedCode")
 public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuthHandler {
 
   private static Logger log = LoggerFactory.getLogger(CustomJwtAuthHandlerImpl.class);
@@ -185,7 +186,7 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
 
   //    @Override
   protected void authorise(User user, RoutingContext ctx) {
-    log.debug("检测权限,用户的权限：" + user.principal().getJsonArray("roles"));
+//    log.debug("检测权限,用户的权限：" + user.principal().getJsonArray("roles"));
     final String uri = ctx.request().uri();
     log.debug("访问的地址：" + uri);
     log.debug("需要的权限：" + authMap.get(uri));
@@ -193,7 +194,7 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
     if (doIsPermitted(user.principal().getJsonArray("roles"), authMap.get(uri))) {
       ctx.next();
     } else {
-      ctx.put("e", ErrorCode.USER_PERMISSION_DENY).fail(403);
+      throw new ErrorCodeException( ErrorCode.USER_PERMISSION_DENY);
     }
   }
 

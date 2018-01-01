@@ -10,13 +10,13 @@ class LoginDataProvider(dbClient: SQLClient) : AbstractDataProvider(dbClient) {
 
     suspend fun login(data: JsonArray) : ResultSet {
       return  queryWithParams(dbClient,
-                "select * from user where name= (?)",
+                "select password,password_salt from user where username= (?)",
                 json { data }
         )
     }
     suspend fun update(data: JsonArray) : UpdateResult {
         return  updateWithParams(dbClient,
-                "INSERT INTO user (name) VALUES (?)",
+                "INSERT INTO user (username) VALUES (?)",
                 json { data }
         )
     }

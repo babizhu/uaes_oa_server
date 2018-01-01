@@ -9,7 +9,7 @@ class UserDataProvider(dbClient: SQLClient) : AbstractDataProvider(dbClient) {
 
     suspend fun create(data: JsonArray) : UpdateResult {
       return  updateWithParams(dbClient,
-                "INSERT INTO user (name) VALUES (?)",
+                "INSERT INTO user (username,password_salt,password) VALUES (?,?,?)",
                 json { data }
         )
     }

@@ -49,10 +49,9 @@ class LoginHandler( private val jwtAuthProvider: JWTAuth,dbClient: SQLClient) : 
                                 .put("username", username)
                                 .put("roles", JsonArray().add("admin")),
                         JWTOptions()
-                                .setSubject("Quant Trade")
+                                .setSubject("uaes oa")
                                 .setIssuer("bbz company"))
-                ctx.response().putHeader("Authorization", "Bearer " + token)
-                ctx.response().end(token)
+                ctx.response().putHeader("Authorization", "Bearer " + token).end(token)
             } else {
                 throw ErrorCodeException(errorCode)
             }
@@ -73,41 +72,41 @@ class LoginHandler( private val jwtAuthProvider: JWTAuth,dbClient: SQLClient) : 
             e.printStackTrace()
         }
 
-        return null
+        return password
     }
 
-    private fun examinePassword(password: String?, storedPassword: String?, salt: String): Boolean {
+    private fun examinePassword(password: String?, storedPassword: String, salt: String): Boolean {
         val cryptPassword = CustomHashStrategy.INSTANCE.cryptPassword(password, salt)
-        return storedPassword != null && storedPassword == cryptPassword
+        return storedPassword == cryptPassword
     }
 
     private fun checkUserLogin(result: MutableList<JsonArray>, password: String?): ErrorCode {
         println(result)
-        return ErrorCode.SUCCESS
-//        when (result.size) {
-//            0 -> {
-//                return ErrorCode.USER_NOT_FOUND
-//            }
-//            1 -> {
-//                val json = result[0]
-//
-//                return if (examinePassword(password, json.encode(), json.encode()))
-//                    ErrorCode.SUCCESS
-//                else {
-//                    //                    String message = "Invalid username/password [" + authToken.username + "]";
-//                    //                    // log.warn(message);
-//                    //                    throw new AuthenticationException(message);
-//                    ErrorCode.USER_UNAME_PASS_INVALID
-//                }
-//            }
-//            else -> {
-//                // More than one row returned!
-//                //                String message = "More than one user row found for user [" + authToken.username + "( "
-//                //                        + resultList.result().size() + " )]. Usernames must be unique.";
-//                // log.warn(message);
-//                throw ErrorCodeException( ErrorCode.USER_NOT_LOGIN,"怎么查出来多个用户")
-//            }
-//        }
+//        return ErrorCode.SUCCESS
+        when (result.size) {
+            0 -> {
+                return ErrorCode.USER_NOT_FOUND
+            }
+            1 -> {
+                val json = result[0]
+
+                return if (examinePassword(password, json.getString(0), json.getString(1)))
+                    ErrorCode.SUCCESS
+                else {
+                    //                    String message = "Invalid username/password [" + authToken.username + "]";
+                    //                    // log.warn(message);
+                    //                    throw new AuthenticationException(message);
+                    ErrorCode.USER_UNAME_PASS_INVALID
+                }
+            }
+            else -> {
+                // More than one row returned!
+                //                String message = "More than one user row found for user [" + authToken.username + "( "
+                //                        + resultList.result().size() + " )]. Usernames must be unique.";
+                // log.warn(message);
+                throw ErrorCodeException( ErrorCode.USER_NOT_LOGIN,"怎么查出来多个用户")
+            }
+        }
     }
 
 

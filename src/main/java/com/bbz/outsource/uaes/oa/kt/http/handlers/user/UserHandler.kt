@@ -5,6 +5,7 @@ import com.bbz.outsource.uaes.oa.kt.coroutineHandler
 import com.bbz.outsource.uaes.oa.kt.db.UserDataProvider
 import com.bbz.outsource.uaes.oa.kt.http.handlers.AbstractHandler
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequirePermissions
+import com.bbz.outsource.uaes.oa.kt.util.CustomHashStrategy
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.sql.SQLClient
 import io.vertx.ext.sql.UpdateResult
@@ -23,6 +24,7 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
     }
     private suspend fun save(ctx: RoutingContext) {
         val userJson = ctx.bodyAsJson
+        checkArguments(userJson,"username","password")
         val postId = userJson.getString(JsonConsts.DB_ID)
         val isCreate = (postId == null)
         val result: UpdateResult
@@ -41,10 +43,18 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
         val updateResult = dataProvider.create(params)
         ctx.response().end(updateResult.keys.encode())
     }
+    @RequirePermissions("sys:user:create")
     private suspend fun create(userJson:JsonObject): UpdateResult {
+        val salt = CustomHashStrategy.generateSalt()
+
+        val cryptPassword = CustomHashStrategy.INSTANCE
+                .cryptPassword(userJson.getString(JsonConsts.USER_PASSWORD), salt)
+
+//        userJson.put(JsonConsts.USER_PASSWORD, cryptPassword)
+        userJson.remove(JsonConsts.DB_ID)//去掉_id，以便让db自动生成
 
         val params = JsonArray()
-        params.add(userJson.getValue("name"))
+        params.add(userJson.getValue("username")).add(salt).add(cryptPassword)
         return dataProvider.create(params)
 //        ctx.response().end(updateResult.keys.encode())
     }

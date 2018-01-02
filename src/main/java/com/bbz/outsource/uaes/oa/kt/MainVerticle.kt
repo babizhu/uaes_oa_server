@@ -38,7 +38,7 @@ fun main(args: Array<String>) {
 @Suppress("unused")
 class MainVerticle : CoroutineVerticle() {
     companion object {
-        val logger = LoggerFactory.getLogger(this.javaClass)!!
+        val logger = LoggerFactory.getLogger(this::class.java)!!
     }
 
     lateinit var jwtAuthProvider: JWTAuth

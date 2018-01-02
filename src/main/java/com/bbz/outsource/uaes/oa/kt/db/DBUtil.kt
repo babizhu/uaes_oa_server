@@ -96,18 +96,18 @@ suspend fun executeSQL(connection: SQLConnection, sql: String) {
 }
 
 suspend fun fluentTx(client: SQLClient, sqlAndParamsMap: Map<String, JsonArray>): Boolean {
-  val connection = getConnection(client)
+  val connection = com.bbz.outsource.uaes.oa.database.getConnection(client)
   connection.use {
       return try {
-          beginTx(connection)
+          com.bbz.outsource.uaes.oa.database.beginTx(connection)
           for ((sql, params) in sqlAndParamsMap) {
-              updateWithParams(connection, sql, params)
+              com.bbz.outsource.uaes.oa.database.updateWithParams(connection, sql, params)
           }
 
-          commitTx(connection)
+          com.bbz.outsource.uaes.oa.database.commitTx(connection)
           true
       } catch (e: Exception) {
-          rollbackTx(connection)
+          com.bbz.outsource.uaes.oa.database.rollbackTx(connection)
           false
       }
   }

@@ -19,12 +19,12 @@ import io.vertx.ext.sql.SQLClient
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 
-class LoginHandler( private val jwtAuthProvider: JWTAuth,dbClient: SQLClient) : AbstractHandler() {
-    private val dataProvider:LoginDataProvider = LoginDataProvider(dbClient)
+class LoginHandler(private val jwtAuthProvider: JWTAuth, dbClient: SQLClient) : AbstractHandler() {
+    private val dataProvider: LoginDataProvider = LoginDataProvider(dbClient)
 
     fun addRouter(mainRouter: Router): Router {
-        mainRouter.route("/login").coroutineHandler{ login(it) }
-        mainRouter.route("/logout").coroutineHandler{ logout(it) }
+        mainRouter.route("/login").coroutineHandler { login(it) }
+        mainRouter.route("/logout").coroutineHandler { logout(it) }
 
         return mainRouter
     }
@@ -37,25 +37,27 @@ class LoginHandler( private val jwtAuthProvider: JWTAuth,dbClient: SQLClient) : 
         val userJson = ctx.bodyAsJson
         val username = userJson.getString(JsonConsts.USER_NAME) ?: throw ErrorCodeException(ErrorCode.PARAMETER_ERROR, "username is null")
         val password = userJson.getString(JsonConsts.USER_PASSWORD) ?: throw ErrorCodeException(ErrorCode.PARAMETER_ERROR, "password is null")
-
-        var resultSet = dataProvider.login(JsonArray().add(username))
+        var param = JsonArray().add(username)
+        var resultSet = dataProvider.login(param)
         val p = decodeRsaPassword(password)
         val errorCode = checkUserLogin(resultSet.results, p)
-            if (errorCode.isSuccess) {
-                val token = jwtAuthProvider.generateToken(
-                        JsonObject()
-                                .put("success", true)
-                                .put("message", "ok")
-                                .put("username", username)
-                                .put("roles", JsonArray().add("admin")),
-                        JWTOptions()
-                                .setSubject("uaes oa")
-                                .setIssuer("bbz company"))
-                ctx.response().putHeader("Authorization", "Bearer " + token).end(token)
-            } else {
-                throw ErrorCodeException(errorCode)
-            }
+        if (errorCode.isSuccess) {
+            var roles = dataProvider.queryRoles(param)
+            val token = jwtAuthProvider.generateToken(
+                    JsonObject()
+                            .put("success", true)
+                            .put("message", "ok")
+                            .put("username", username)
+                            .put("roles", roles.rows.joinToString(",") { it.getString("role") }
+                            ),
+                    JWTOptions()
+                            .setSubject("uaes oa")
+                            .setIssuer("bbz company"))
+            ctx.response().putHeader("Authorization", "Bearer " + token).end(token)
+        } else {
+            endFail(ctx, errorCode)
         }
+    }
 
 
     /**
@@ -71,7 +73,6 @@ class LoginHandler( private val jwtAuthProvider: JWTAuth,dbClient: SQLClient) : 
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
         return password
     }
 
@@ -104,11 +105,10 @@ class LoginHandler( private val jwtAuthProvider: JWTAuth,dbClient: SQLClient) : 
                 //                String message = "More than one user row found for user [" + authToken.username + "( "
                 //                        + resultList.result().size() + " )]. Usernames must be unique.";
                 // log.warn(message);
-                throw ErrorCodeException( ErrorCode.USER_NOT_LOGIN,"怎么查出来多个用户")
+                throw ErrorCodeException(ErrorCode.USER_NOT_LOGIN, "怎么查出来多个用户")
             }
         }
     }
-
 
 
 }

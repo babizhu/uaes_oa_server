@@ -1,6 +1,6 @@
 package com.bbz.outsource.uaes.oa.kt.http
 
-import com.bbz.outsource.uaes.oa.database.endFail
+import com.bbz.outsource.uaes.oa.kt.http.handlers.endFail
 import com.bbz.outsource.uaes.oa.kt.MainVerticle
 import com.bbz.outsource.uaes.oa.kt.consts.Consts
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
@@ -33,7 +33,7 @@ fun MainVerticle.createHttpServer() {
 private fun MainVerticle.initHandler(mainRouter: Router) {
     mainRouter.route().handler(BodyHandler.create())
 
-    mainRouter.mountSubRouter(Consts.API_PREFIX, LoginHandler(jwtAuthProvider,dbClient).addRouter(Router.router(vertx)))
+    mainRouter.mountSubRouter("/", LoginHandler(jwtAuthProvider,dbClient).addRouter(Router.router(vertx)))
     mainRouter.route().handler(CustomJwtAuthHandlerImpl(jwtAuthProvider))
     mainRouter.route().failureHandler(errorHandler)
     dispatcherHandler(mainRouter)
@@ -52,8 +52,7 @@ val errorHandler = Handler<RoutingContext> {
     println("uri ${it.request().uri()}")
 
     if (failure is ErrorCodeException) {
-        it.response().endFail("ERROR ${failure.errorCode.toNum()}:${failure.message}")
-
+        it.response().endFail(failure)
     } else {
         it.response().endFail("ERROR ${failure.message}")
     }

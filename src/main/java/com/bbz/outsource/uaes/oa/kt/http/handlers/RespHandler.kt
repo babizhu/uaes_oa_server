@@ -1,6 +1,7 @@
-package com.bbz.outsource.uaes.oa.database
+package com.bbz.outsource.uaes.oa.kt.http.handlers
 
 
+import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
 import io.vertx.core.http.HttpServerResponse
 import io.vertx.core.json.JsonObject
@@ -12,25 +13,32 @@ import io.vertx.kotlin.core.json.obj
  * ---------------------------
  */
 fun HttpServerResponse.endFail(msg: String) {
-  this.putHeader("content-type", "application/json; charset=utf-8")
+  this.setStatusCode(500).putHeader("content-type", "application/json; charset=utf-8")
     .end(json {
       obj(
-        "error" to msg,
-        "time" to System.currentTimeMillis()
+        "eid" to ErrorCode.SYSTEM_ERROR,
+        "error" to msg
       )
     }.encode())
 }
 
-fun HttpServerResponse.endFail(exception: ErrorCodeException, msg: String) {
+fun HttpServerResponse.endFail(exception: ErrorCodeException) {
     this.setStatusCode(500).putHeader("content-type", "application/json; charset=utf-8")
             .end(json {
                 obj(
-                        "eid" to exception.errorCode.toNum(),
-                        "msg" to msg
+                        "eid" to exception.errorCode,
+                        "msg" to exception.message
                 )
             }.encode())
 }
-
+fun HttpServerResponse.endFail(errorCode: ErrorCode) {
+    this.setStatusCode(500).putHeader("content-type", "application/json; charset=utf-8")
+            .end(json {
+                obj(
+                        "eid" to errorCode
+                )
+            }.encode())
+}
 fun HttpServerResponse.endSuccess(body: JsonObject) {
   this.putHeader("content-type", "application/json; charset=utf-8")
     .end(body.put("time", System.currentTimeMillis()).encode())

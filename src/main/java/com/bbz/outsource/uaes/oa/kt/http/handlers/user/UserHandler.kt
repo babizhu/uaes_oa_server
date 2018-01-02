@@ -22,18 +22,17 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
         mainRouter.route("/query").coroutineHandler{ query(it) }
         return mainRouter
     }
+    @RequirePermissions("sys:user:create")
     private suspend fun save(ctx: RoutingContext) {
         val userJson = ctx.bodyAsJson
         checkArguments(userJson,"username","password")
         val postId = userJson.getString(JsonConsts.DB_ID)
         val isCreate = (postId == null)
-        val result: UpdateResult
-        result = if (isCreate) {
+        val result = if (isCreate) {
             create( userJson)
         } else {
             update( userJson)
         }
-
         ctx.response().end(result.keys.encode())
     }
     private suspend fun del(ctx: RoutingContext) {

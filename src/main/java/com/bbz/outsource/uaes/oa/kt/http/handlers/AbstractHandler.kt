@@ -3,11 +3,12 @@ package com.bbz.outsource.uaes.oa.kt.http.handlers
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
 import io.vertx.core.json.JsonObject
+import io.vertx.ext.web.RoutingContext
 
 /**
  *
  */
-abstract class  AbstractHandler(){
+abstract class  AbstractHandler {
     /**
      * 检测客户端输入参数是否正确，不多也不少
      *
@@ -36,5 +37,8 @@ abstract class  AbstractHandler(){
                 break
             }
         }
+    }
+    protected fun endFail(ctx: RoutingContext, errorCode: ErrorCode){
+        ctx.response().endFail(errorCode)
     }
 }

@@ -38,12 +38,15 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
   /**
    * 仅供内部使用，原则上初始化之后不允许修改，否则可能造成多线程竞争，如果需要修改，可考虑采用vertx.sharedData()
    */
-  private static final Map<String, Set<String>> authMap = new HashMap<>();
+  private static final Map<String, Set<String>> AUTH_MAP = new HashMap<>();
   /**
    * 角色到权限的映射
    */
   private final Map<String, Set<String>> rolesPermissionsMap = new HashMap<>();
-  //    private static final Pattern BEARER = Pattern.compile( "^Bearer$", Pattern.CASE_INSENSITIVE );
+  /**
+   *  private static final Pattern BEARER = Pattern.compile( "^Bearer$", Pattern.CASE_INSENSITIVE );
+   *
+   */
   private static final String BEARER = "Bearer";
   private final JsonObject options = new JsonObject();
 
@@ -56,7 +59,7 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
     } catch (IOException e) {
       e.printStackTrace();
     }
-    log.info(authMap.toString());
+    log.info(AUTH_MAP.toString());
 
   }
 
@@ -76,7 +79,7 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
 //                }
         ///api/trade/getTradeInfo
         String url = clazzName + "/" + method.getName();
-        authMap.put(url, permisstionSet);
+        AUTH_MAP.put(url, permisstionSet);
       }
     }
   }
@@ -184,14 +187,14 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
     });
   }
 
-  //    @Override
+
   protected void authorise(User user, RoutingContext ctx) {
 //    log.debug("检测权限,用户的权限：" + user.principal().getJsonArray("roles"));
     final String uri = ctx.request().uri();
     log.debug("访问的地址：" + uri);
-    log.debug("需要的权限：" + authMap.get(uri));
+    log.debug("需要的权限：" + AUTH_MAP.get(uri));
 //        super.authorise( user, context );
-    if (doIsPermitted(user.principal().getJsonArray("roles"), authMap.get(uri))) {
+    if (doIsPermitted(user.principal().getString("roles"), AUTH_MAP.get(uri))) {
       ctx.next();
     } else {
       throw new ErrorCodeException( ErrorCode.USER_PERMISSION_DENY);
@@ -199,12 +202,15 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
   }
 
 
-  private boolean doIsPermitted(JsonArray userRoles, Set<String> uriPermissionSet) {
+  private boolean doIsPermitted(String userRoles, Set<String> uriPermissionSet) {
 
 //        Set<String> userRoles = user.getRoles();
 //        Set<String> permissions = user.getPermissions();
 //        return userRoles.contains( "admin" ) || permissionOrRole.contains( userRoles ) || permissionOrRole.contains( permissions );
-    for (Object role : userRoles) {
+    if(uriPermissionSet == null ){
+      return true;
+    }
+    for (Object role : userRoles.split(",")) {
       if (role.equals("admin")) {
         return true;
       }
@@ -224,17 +230,7 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
    * 很明显一旦[角色-权限表]的数据发生变化，在集群的条件下，没有办法通知到每个verticle实例的缓存，这个问题以后在着手解决
    */
   private void initRoles() {
-//        DeliveryOptions options = new DeliveryOptions().addHeader( "action", EventBusCommand.DB_ROLE_QUERY.name() );
-//        eventBus.send( EventBusAddress.DB_ADDR, new JsonObject(), options, reply -> {
-//            final JsonArray roles = (JsonArray) reply.result().body();
-//            log.info( roles.toString() );
-//            roles.forEach( v -> {
-//                JsonObject role = (JsonObject) v;
-//                rolesPermissionsMap.put( role.getString( "role" ), getSetFromStr( role.getString( "permissions" ) ) );
-//            } );
-//            log.info( rolesPermissionsMap.toString() );
-//        } );
-//
+
   }
 
   @Override
@@ -243,6 +239,6 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
   }
 
   public static void main(String[] args) {
-    System.out.println( CustomJwtAuthHandlerImpl.authMap);
+    System.out.println( CustomJwtAuthHandlerImpl.AUTH_MAP);
   }
 }

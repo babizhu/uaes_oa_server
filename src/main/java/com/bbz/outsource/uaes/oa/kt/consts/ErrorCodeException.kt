@@ -2,7 +2,7 @@ package com.bbz.outsource.uaes.oa.kt.consts
 
 class ErrorCodeException(val errorCode: ErrorCode, message: String?) : RuntimeException(message) {
 
-    constructor(errorCode: ErrorCode) : this(errorCode,null)
+    constructor(errorCode: ErrorCode) : this(errorCode,"")
 
 
 }

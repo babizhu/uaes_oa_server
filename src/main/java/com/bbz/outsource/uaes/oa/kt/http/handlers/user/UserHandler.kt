@@ -4,6 +4,7 @@ import com.bbz.outsource.uaes.oa.kt.consts.JsonConsts
 import com.bbz.outsource.uaes.oa.kt.coroutineHandler
 import com.bbz.outsource.uaes.oa.kt.db.UserDataProvider
 import com.bbz.outsource.uaes.oa.kt.http.handlers.AbstractHandler
+import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwt
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequirePermissions
 import com.bbz.outsource.uaes.oa.kt.util.CustomHashStrategy
 import io.vertx.core.json.JsonObject
@@ -20,6 +21,7 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
         mainRouter.route("/save").coroutineHandler{ save(it) }
         mainRouter.route("/del").coroutineHandler{ del(it) }
         mainRouter.route("/query").coroutineHandler{ query(it) }
+        mainRouter.route("/permisstionsQuery").coroutineHandler{ permisstionsQuery(it) }
         return mainRouter
     }
     @RequirePermissions("sys:user:create")
@@ -69,4 +71,8 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
     private suspend fun query(ctx: RoutingContext) {
     }
 
+    @RequirePermissions("sys:permissions:query")
+    private suspend fun permisstionsQuery(ctx: RoutingContext) {
+        ctx.response().end(CustomJwt.AUTH_MAP.values.toString())
+    }
 }

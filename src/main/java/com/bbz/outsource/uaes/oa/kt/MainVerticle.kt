@@ -2,8 +2,6 @@
 
 package com.bbz.outsource.uaes.oa.kt
 
-import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
-import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
 import com.bbz.outsource.uaes.oa.kt.http.createHttpServer
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwt
 import io.vertx.core.Vertx
@@ -46,11 +44,6 @@ class MainVerticle : CoroutineVerticle() {
     lateinit var dbClient: SQLClient
 
     suspend override fun start() {
-        try {
-            throw ErrorCodeException(ErrorCode.PARAMETER_ERROR,"abcd")
-        }catch (e:ErrorCodeException){
-            println(""+e.errorCode +":"+e.message)
-        }
         dbClient = MySQLClient.createShared(vertx, json {
             obj(
                     "host" to "127.0.0.1",

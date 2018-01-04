@@ -30,7 +30,6 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
     private val options = JsonObject()
 
     init {
-        initRoles()
     }
 
     override fun setAudience(audience: List<String>): JWTAuthHandler {
@@ -88,7 +87,7 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
                 authorise(user, context)
             } else {
                 log.warn("JWT decode failure", res.cause())
-                context.fail(401)
+                throw ErrorCodeException(ErrorCode.USER_NOT_LOGIN,"JWT decode failure")
             }
         }
     }
@@ -132,13 +131,6 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
 
     }
 
-    /**
-     * 很明显一旦[角色-权限表]的数据发生变化，在集群的条件下，没有办法通知到每个verticle实例的缓存，这个问题以后在着手解决
-     */
-    private fun initRoles() {
-
-    }
-
     override fun parseCredentials(routingContext: RoutingContext, handler: Handler<AsyncResult<JsonObject>>) {
 
     }
@@ -150,7 +142,7 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
         /**
          * 仅供内部使用，原则上初始化之后不允许修改，否则可能造成多线程竞争，如果需要修改，可考虑采用vertx.sharedData()
          */
-        private val AUTH_MAP = HashMap<String, Set<String>>()
+        val AUTH_MAP = HashMap<String, Set<String>>()
         private val rolesPermissionsMap = HashMap<String, Set<String>>()
         /**
          * private static final Pattern BEARER = Pattern.compile( "^Bearer$", Pattern.CASE_INSENSITIVE );         *

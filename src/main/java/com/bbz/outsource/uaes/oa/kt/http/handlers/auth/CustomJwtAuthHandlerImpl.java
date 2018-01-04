@@ -240,5 +240,13 @@ public class CustomJwtAuthHandlerImpl extends AuthHandlerImpl implements JWTAuth
 
   public static void main(String[] args) {
     System.out.println( CustomJwtAuthHandlerImpl.AUTH_MAP);
-  }
+      ArrayList<String> list = new ArrayList<String>() { {
+        add("2333");
+        add("666");
+      } };
+    System.out.println(list);
+    }
+
+
+
 }

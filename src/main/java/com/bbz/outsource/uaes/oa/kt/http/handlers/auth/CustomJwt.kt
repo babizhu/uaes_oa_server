@@ -2,6 +2,7 @@ package com.bbz.outsource.uaes.oa.kt.http.handlers.auth
 
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
+import com.bbz.outsource.uaes.oa.kt.db.LoginDataProvider
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequirePermissions
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequireRoles
 import com.google.common.reflect.ClassPath
@@ -12,6 +13,7 @@ import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.User
 import io.vertx.ext.auth.jwt.JWTAuth
+import io.vertx.ext.sql.SQLClient
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.JWTAuthHandler
 import io.vertx.ext.web.handler.impl.AuthHandlerImpl
@@ -20,13 +22,12 @@ import java.io.IOException
 import java.util.*
 
 
-class CustomJwt(authProvider: JWTAuth) : AuthHandlerImpl(authProvider), JWTAuthHandler {
+class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(authProvider), JWTAuthHandler {
     /**
      * 角色到权限的映射
      */
-    private val rolesPermissionsMap = HashMap<String, Set<String>>()
-    private val options = JsonObject()
 
+    private val options = JsonObject()
 
     init {
         initRoles()
@@ -121,8 +122,10 @@ class CustomJwt(authProvider: JWTAuth) : AuthHandlerImpl(authProvider), JWTAuthH
                 return true
             }
             val permisstions = rolesPermissionsMap[role] ?: return false
-            if (permisstions.find { it.startsWith("a") }.equals("a")) {
-                return true
+            for (permisstion in permisstions) {
+                if(uriPermissionSet.contains(permisstion)){
+                    return true
+                }
             }
         }
         return false
@@ -148,9 +151,9 @@ class CustomJwt(authProvider: JWTAuth) : AuthHandlerImpl(authProvider), JWTAuthH
          * 仅供内部使用，原则上初始化之后不允许修改，否则可能造成多线程竞争，如果需要修改，可考虑采用vertx.sharedData()
          */
         private val AUTH_MAP = HashMap<String, Set<String>>()
+        private val rolesPermissionsMap = HashMap<String, Set<String>>()
         /**
-         * private static final Pattern BEARER = Pattern.compile( "^Bearer$", Pattern.CASE_INSENSITIVE );
-         *
+         * private static final Pattern BEARER = Pattern.compile( "^Bearer$", Pattern.CASE_INSENSITIVE );         *
          */
         private val BEARER = "Bearer"
 
@@ -218,7 +221,16 @@ class CustomJwt(authProvider: JWTAuth) : AuthHandlerImpl(authProvider), JWTAuthH
 
         @JvmStatic
         fun main(args: Array<String>) {
-            println(CustomJwtAuthHandlerImpl.AUTH_MAP)
+            println(CustomJwt.AUTH_MAP)
+        }
+
+        suspend fun initRole2PermissionsMap(dbClient: SQLClient) {
+            val dataProvider = LoginDataProvider(dbClient)
+            val queryRolesPermission = dataProvider.queryRolesPermission()
+            queryRolesPermission.rows.map { rolesPermissionsMap.put(it.getString("role"), getSetFromStr(it.getString("perm"))) }
+            println(rolesPermissionsMap)
+
+
         }
     }
 }

@@ -1,10 +1,10 @@
 package com.bbz.outsource.uaes.oa.kt.http
 
-import com.bbz.outsource.uaes.oa.kt.http.handlers.endFail
 import com.bbz.outsource.uaes.oa.kt.MainVerticle
 import com.bbz.outsource.uaes.oa.kt.consts.Consts
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
-import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwtAuthHandlerImpl
+import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwt
+import com.bbz.outsource.uaes.oa.kt.http.handlers.endFail
 import com.bbz.outsource.uaes.oa.kt.http.handlers.user.LoginHandler
 import com.bbz.outsource.uaes.oa.kt.http.handlers.user.UserHandler
 import io.vertx.core.Handler
@@ -34,7 +34,7 @@ private fun MainVerticle.initHandler(mainRouter: Router) {
     mainRouter.route().handler(BodyHandler.create())
 
     mainRouter.mountSubRouter("/", LoginHandler(jwtAuthProvider,dbClient).addRouter(Router.router(vertx)))
-    mainRouter.route().handler(CustomJwtAuthHandlerImpl(jwtAuthProvider))
+    mainRouter.route().handler(CustomJwt(jwtAuthProvider,dbClient))
     mainRouter.route().failureHandler(errorHandler)
     dispatcherHandler(mainRouter)
     adapterReactHandler(mainRouter)//这个只能放在倒数第二的位置

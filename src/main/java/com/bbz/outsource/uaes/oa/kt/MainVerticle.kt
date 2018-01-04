@@ -5,6 +5,7 @@ package com.bbz.outsource.uaes.oa.kt
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
 import com.bbz.outsource.uaes.oa.kt.http.createHttpServer
+import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwt
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.logging.LoggerFactory
@@ -67,6 +68,7 @@ class MainVerticle : CoroutineVerticle() {
                         .setPassword("secret"))
         jwtAuthProvider = JWTAuth.create(vertx, jwtAuthOptions)
         createHttpServer()
+        CustomJwt.initRole2PermissionsMap(dbClient)
     }
 }
 fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {

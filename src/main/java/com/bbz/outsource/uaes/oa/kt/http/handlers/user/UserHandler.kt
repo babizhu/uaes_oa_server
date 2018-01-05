@@ -4,8 +4,9 @@ import com.bbz.outsource.uaes.oa.kt.consts.JsonConsts
 import com.bbz.outsource.uaes.oa.kt.coroutineHandler
 import com.bbz.outsource.uaes.oa.kt.db.UserDataProvider
 import com.bbz.outsource.uaes.oa.kt.http.handlers.AbstractHandler
-import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwt
+import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwtImpl
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequirePermissions
+import com.bbz.outsource.uaes.oa.kt.http.handlers.endSuccess
 import com.bbz.outsource.uaes.oa.kt.util.CustomHashStrategy
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.sql.SQLClient
@@ -35,7 +36,7 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
         } else {
             update( userJson)
         }
-        ctx.response().end(result.keys.encode())
+        ctx.response().endSuccess(result.toJson())
     }
     private suspend fun del(ctx: RoutingContext) {
         val bodyAsJson = ctx.bodyAsJson
@@ -57,6 +58,8 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
         val params = JsonArray()
         params.add(userJson.getValue("username")).add(salt).add(cryptPassword)
         return dataProvider.create(params)
+
+
 //        ctx.response().end(updateResult.keys.encode())
     }
     private suspend fun update(userJson:JsonObject) : UpdateResult{
@@ -73,6 +76,6 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
 
     @RequirePermissions("sys:permissions:query")
     private suspend fun permisstionsQuery(ctx: RoutingContext) {
-        ctx.response().end(CustomJwt.AUTH_MAP.values.toString())
+        ctx.response().endSuccess(CustomJwtImpl.URI_PERMISSIONS_MAP.values.flatMap { it }.toSet().joinToString(","))
     }
 }

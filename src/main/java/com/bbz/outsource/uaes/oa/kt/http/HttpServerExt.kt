@@ -3,7 +3,7 @@ package com.bbz.outsource.uaes.oa.kt.http
 import com.bbz.outsource.uaes.oa.kt.MainVerticle
 import com.bbz.outsource.uaes.oa.kt.consts.Consts
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
-import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwt
+import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwtImpl
 import com.bbz.outsource.uaes.oa.kt.http.handlers.endFail
 import com.bbz.outsource.uaes.oa.kt.http.handlers.user.LoginHandler
 import com.bbz.outsource.uaes.oa.kt.http.handlers.user.UserHandler
@@ -34,7 +34,7 @@ private fun MainVerticle.initHandler(mainRouter: Router) {
     mainRouter.route().handler(BodyHandler.create())
 
     mainRouter.mountSubRouter("/", LoginHandler(jwtAuthProvider,dbClient).addRouter(Router.router(vertx)))
-    mainRouter.route().handler(CustomJwt(jwtAuthProvider,dbClient))
+    mainRouter.route().handler(CustomJwtImpl(jwtAuthProvider))
     mainRouter.route().failureHandler(errorHandler)
     dispatcherHandler(mainRouter)
     adapterReactHandler(mainRouter)//这个只能放在倒数第二的位置
@@ -62,11 +62,6 @@ private fun MainVerticle.dispatcherHandler(mainRouter: Router) {
     mainRouter.mountSubRouter(Consts.API_PREFIX+"user", UserHandler(dbClient).addRouter(Router.router(vertx)))
 }
 
-private fun adapterAuthHandler(mainRouter: Router) {
-
-
-//    mainRouter.route( API_PREFIX+"*" ).handler( CustomJwtAuthHandlerImpl(eventBus, jwtAuthProvider ) );//暂时只能屏蔽
-}
 
 /**
  * 适配react客户端的路由模式，访问任何页面都重定向到index.html中

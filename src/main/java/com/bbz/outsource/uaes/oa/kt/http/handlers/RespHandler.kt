@@ -13,13 +13,13 @@ import io.vertx.kotlin.core.json.obj
  * ---------------------------
  */
 fun HttpServerResponse.endFail(msg: String) {
-  this.setStatusCode(500).putHeader("content-type", "application/json; charset=utf-8")
-    .end(json {
-      obj(
-        "eid" to ErrorCode.SYSTEM_ERROR,
-        "error" to msg
-      )
-    }.encode())
+    this.setStatusCode(500).putHeader("content-type", "application/json; charset=utf-8")
+            .end(json {
+                obj(
+                        "eid" to ErrorCode.SYSTEM_ERROR,
+                        "error" to msg
+                )
+            }.encode())
 }
 
 fun HttpServerResponse.endFail(exception: ErrorCodeException) {
@@ -31,6 +31,7 @@ fun HttpServerResponse.endFail(exception: ErrorCodeException) {
                 )
             }.encode())
 }
+
 fun HttpServerResponse.endFail(errorCode: ErrorCode) {
     this.setStatusCode(500).putHeader("content-type", "application/json; charset=utf-8")
             .end(json {
@@ -39,7 +40,23 @@ fun HttpServerResponse.endFail(errorCode: ErrorCode) {
                 )
             }.encode())
 }
+
+fun HttpServerResponse.endFail(errorCode: ErrorCode, msg: String) {
+    this.setStatusCode(500).putHeader("content-type", "application/json; charset=utf-8")
+            .end(json {
+                obj(
+                        "eid" to errorCode,
+                        "msg" to msg
+                )
+            }.encode())
+}
+
 fun HttpServerResponse.endSuccess(body: JsonObject) {
-  this.putHeader("content-type", "application/json; charset=utf-8")
-    .end(body.put("time", System.currentTimeMillis()).encode())
+    this.putHeader("content-type", "application/json; charset=utf-8")
+            .end(body.put("time", System.currentTimeMillis()).encode())
+}
+
+fun HttpServerResponse.endSuccess(body: String) {
+    this.putHeader("content-type", "application/json; charset=utf-8")
+            .end(JsonObject().put("result",body).encode())
 }

@@ -1,109 +1,83 @@
 package com.bbz.outsource.uaes.oa.kt.http.handlers.auth
 
 import com.bbz.outsource.uaes.oa.kt.consts.ErrorCode
-import com.bbz.outsource.uaes.oa.kt.consts.ErrorCodeException
 import com.bbz.outsource.uaes.oa.kt.db.LoginDataProvider
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequirePermissions
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.anno.RequireRoles
+import com.bbz.outsource.uaes.oa.kt.http.handlers.endFail
 import com.google.common.reflect.ClassPath
-import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
+import io.vertx.core.MultiMap
 import io.vertx.core.http.HttpHeaders
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.User
 import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.sql.SQLClient
 import io.vertx.ext.web.RoutingContext
-import io.vertx.ext.web.handler.JWTAuthHandler
-import io.vertx.ext.web.handler.impl.AuthHandlerImpl
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util.*
 
 
-class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(authProvider), JWTAuthHandler {
-    /**
-     * 角色到权限的映射
-     */
-
-    private val options = JsonObject()
+class CustomJwtImpl(private val authProvider: JWTAuth) : Handler<RoutingContext> {
 
     init {
     }
 
-    override fun setAudience(audience: List<String>): JWTAuthHandler {
-        options.put("audience", JsonArray(audience))
-        return this
-    }
 
-    override fun setIssuer(issuer: String): JWTAuthHandler {
-        options.put("issuer", issuer)
-        return this
-    }
+    private fun parseAuthHeader(headers: MultiMap): String? {
+        val authorization = headers.get(HttpHeaders.AUTHORIZATION) ?: return null
+        val parts = authorization.split(" ")
+        if (parts.size == 2) {
+            val scheme = parts[0]
+            val credentials = parts[1]
 
-    override fun setIgnoreExpiration(ignoreExpiration: Boolean): JWTAuthHandler {
-        options.put("ignoreExpiration", ignoreExpiration)
-        return this
+            if (BEARER == scheme) {
+                return credentials
+            }
+        }
+
+        return null
     }
 
     override fun handle(context: RoutingContext) {
-
         val request = context.request()
-
-        //
-
-        val authorization = request.headers().get(HttpHeaders.AUTHORIZATION)
-        var token: String? = null
-
-        if (authorization != null) {
-            val parts = authorization.split(" ")
-            if (parts.size == 2) {
-                val scheme = parts[0]
-                val credentials = parts[1]
-
-                if (BEARER == scheme) {
-                    token = credentials
-                }
-            } else {
-                log.warn("Format is Authorization: Bearer [token]")
-                context.fail(401)
-                return
-            }
-        } else {
-            log.warn("No Authorization header was found")
-            throw ErrorCodeException(ErrorCode.USER_NOT_LOGIN)
-            //      return;
+        val token = parseAuthHeader(request.headers())
+        if (token == null) {
+            context.response().endFail(ErrorCode.USER_NOT_LOGIN, "No Authorization header was found")
+            return
         }
 
-        val authInfo = JsonObject().put("jwt", token).put("options", options)
+        val authInfo = JsonObject().put("jwt", token)
 
-        authProvider.authenticate(authInfo) { res ->
+        authProvider.authenticate(authInfo)
+        { res ->
             if (res.succeeded()) {
                 val user = res.result()
-                context.setUser(user)
-                val session = context.session()
-                session?.regenerateId()
-                authorise(user, context)
+                var authorise = authorise(user, context)
+                if (authorise) {
+                    context.setUser(user)
+                    val session = context.session()
+                    session?.regenerateId()
+                    context.next()
+                }else{
+                    context.response().endFail(ErrorCode.USER_PERMISSION_DENY)
+                }
+
             } else {
                 log.warn("JWT decode failure", res.cause())
-                throw ErrorCodeException(ErrorCode.USER_NOT_LOGIN,"JWT decode failure")
+                context.response().endFail(ErrorCode.USER_NOT_LOGIN, "JWT decode failure")
             }
         }
     }
 
 
-    private fun authorise(user: User, ctx: RoutingContext) {
+    private fun authorise(user: User, ctx: RoutingContext): Boolean {
         //    log.debug("检测权限,用户的权限：" + user.principal().getJsonArray("roles"));
         val uri = ctx.request().uri()
         log.debug("访问的地址：" + uri)
-        log.debug("需要的权限：" + AUTH_MAP[uri])
-        //        super.authorise( user, context );
-        if (doIsPermitted(user.principal().getString("roles"), AUTH_MAP[uri])) {
-            ctx.next()
-        } else {
-            throw ErrorCodeException(ErrorCode.USER_PERMISSION_DENY)
-        }
+        log.debug("需要的权限：" + URI_PERMISSIONS_MAP[uri])
+        return doIsPermitted(user.principal().getString("roles"), URI_PERMISSIONS_MAP[uri])
     }
 
 
@@ -120,9 +94,9 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
             if (role == "admin") {
                 return true
             }
-            val permisstions = rolesPermissionsMap[role] ?: return false
+            val permisstions = ROLE_PERMISSIONS_MAP[role] ?: return false
             for (permisstion in permisstions) {
-                if(uriPermissionSet.contains(permisstion)){
+                if (uriPermissionSet.contains(permisstion)) {
                     return true
                 }
             }
@@ -131,19 +105,20 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
 
     }
 
-    override fun parseCredentials(routingContext: RoutingContext, handler: Handler<AsyncResult<JsonObject>>) {
-
-    }
-
     companion object {
 
-        private val log = LoggerFactory.getLogger(CustomJwtAuthHandlerImpl::class.java)
+        private val log = LoggerFactory.getLogger(CustomJwtImpl::class.java)
         private val HANDLER_PACKAGE_BASE = "com.bbz.outsource.uaes.oa.kt.http.handlers"
         /**
          * 仅供内部使用，原则上初始化之后不允许修改，否则可能造成多线程竞争，如果需要修改，可考虑采用vertx.sharedData()
+         * 通过uri获取访问此uri所需要的权限列表
          */
-        val AUTH_MAP = HashMap<String, Set<String>>()
-        private val rolesPermissionsMap = HashMap<String, Set<String>>()
+        val URI_PERMISSIONS_MAP = HashMap<String, Set<String>>()
+
+        /**
+         * 通过角色获取该角色拥有的权限列表
+         */
+        private val ROLE_PERMISSIONS_MAP = HashMap<String, Set<String>>()
         /**
          * private static final Pattern BEARER = Pattern.compile( "^Bearer$", Pattern.CASE_INSENSITIVE );         *
          */
@@ -159,7 +134,7 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
                 e.printStackTrace()
             }
 
-            log.info(AUTH_MAP.toString())
+            log.info(URI_PERMISSIONS_MAP.toString())
 
         }
 
@@ -179,7 +154,7 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
                     //                }
                     ///api/trade/getTradeInfo
                     val url = clazzName + "/" + method.name
-                    AUTH_MAP.put(url, permisstionSet)
+                    URI_PERMISSIONS_MAP.put(url, permisstionSet)
                 }
             }
         }
@@ -213,14 +188,14 @@ class CustomJwt(authProvider: JWTAuth, dbClient: SQLClient) : AuthHandlerImpl(au
 
         @JvmStatic
         fun main(args: Array<String>) {
-            println(CustomJwt.AUTH_MAP)
+            println(CustomJwtImpl.URI_PERMISSIONS_MAP)
         }
 
         suspend fun initRole2PermissionsMap(dbClient: SQLClient) {
             val dataProvider = LoginDataProvider(dbClient)
             val queryRolesPermission = dataProvider.queryRolesPermission()
-            queryRolesPermission.rows.map { rolesPermissionsMap.put(it.getString("role"), getSetFromStr(it.getString("perm"))) }
-            println(rolesPermissionsMap)
+            queryRolesPermission.rows.map { ROLE_PERMISSIONS_MAP.put(it.getString("role"), getSetFromStr(it.getString("perm"))) }
+            println(ROLE_PERMISSIONS_MAP)
 
 
         }

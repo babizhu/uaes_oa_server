@@ -14,6 +14,7 @@ import io.vertx.ext.sql.UpdateResult
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.core.json.JsonArray
+import io.vertx.kotlin.coroutines.awaitResult
 
 class UserHandler(dbClient: SQLClient) : AbstractHandler() {
     private val dataProvider:UserDataProvider = UserDataProvider(dbClient)
@@ -76,6 +77,9 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
 
     @RequirePermissions("sys:permissions:query")
     private suspend fun permisstionsQuery(ctx: RoutingContext) {
+
         ctx.response().endSuccess(CustomJwtImpl.URI_PERMISSIONS_MAP.values.flatMap { it }.toSet().joinToString(","))
     }
+
+
 }

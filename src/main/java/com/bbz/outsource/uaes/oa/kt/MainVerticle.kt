@@ -6,6 +6,10 @@ import com.bbz.outsource.uaes.oa.kt.http.createHttpServer
 import com.bbz.outsource.uaes.oa.kt.http.handlers.auth.CustomJwtImpl
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
+import io.vertx.core.buffer.Buffer
+import io.vertx.core.http.HttpClient
+import io.vertx.core.http.HttpClientOptions
+import io.vertx.core.http.HttpClientResponse
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.asyncsql.MySQLClient
 import io.vertx.ext.auth.KeyStoreOptions
@@ -19,6 +23,8 @@ import io.vertx.kotlin.core.json.obj
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.experimental.launch
+import java.nio.charset.Charset
+import kotlin.coroutines.experimental.suspendCoroutine
 
 
 /**
@@ -62,8 +68,31 @@ class MainVerticle : CoroutineVerticle() {
         jwtAuthProvider = JWTAuth.create(vertx, jwtAuthOptions)
         createHttpServer()
         CustomJwtImpl.initRole2PermissionsMap(dbClient)
+
+        var httpClient = vertx.createHttpClient()
+
+        var buffer = httpClient.getNow(80, "www.sina.com.cn", "/")
+        println(buffer.toString(Charset.defaultCharset()))
+        println("12345678")
     }
+
+    private suspend fun HttpClient.getNow(port: Int, host: String, uri: String): Buffer =
+            suspendCoroutine { cont ->
+                vertx.createHttpClient(HttpClientOptions().setSsl(false).setTrustAll(true))
+                        .get(port, host, uri) { response: HttpClientResponse ->
+                            println(response.statusCode())
+                            response.bodyHandler { buffer ->
+                                cont.resume(buffer)
+                            }
+                        }
+                        .exceptionHandler { throwable ->
+                            cont.resumeWithException(throwable)
+                        }
+                        .end()
+            }
+
 }
+
 fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
     handler { ctx ->
         launch(ctx.vertx().dispatcher()) {

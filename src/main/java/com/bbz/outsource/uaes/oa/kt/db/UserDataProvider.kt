@@ -8,13 +8,13 @@ import io.vertx.kotlin.core.json.json
 class UserDataProvider(dbClient: SQLClient) : AbstractDataProvider(dbClient) {
 
     suspend fun create(data: JsonArray) : UpdateResult {
-      return com.bbz.outsource.uaes.oa.database.updateWithParams(dbClient,
+      return updateWithParams(dbClient,
               "INSERT INTO user (username,password_salt,password) VALUES (?,?,?)",
               json { data }
       )
     }
     suspend fun update(data: JsonArray) : UpdateResult {
-        return com.bbz.outsource.uaes.oa.database.updateWithParams(dbClient,
+        return updateWithParams(dbClient,
                 "INSERT INTO user (name) VALUES (?)",
                 json { data }
         )

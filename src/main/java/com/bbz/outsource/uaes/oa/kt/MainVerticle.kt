@@ -24,6 +24,7 @@ import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.experimental.launch
 import java.nio.charset.Charset
+import java.time.LocalTime
 import kotlin.coroutines.experimental.suspendCoroutine
 
 
@@ -48,6 +49,7 @@ class MainVerticle : CoroutineVerticle() {
 
     lateinit var jwtAuthProvider: JWTAuth
     lateinit var dbClient: SQLClient
+    lateinit var httpClient: HttpClient
 
     suspend override fun start() {
         dbClient = MySQLClient.createShared(vertx, json {
@@ -69,27 +71,60 @@ class MainVerticle : CoroutineVerticle() {
         createHttpServer()
         CustomJwtImpl.initRole2PermissionsMap(dbClient)
 
-        var httpClient = vertx.createHttpClient()
+        httpClient = vertx.createHttpClient(HttpClientOptions().setVerifyHost(false).setSsl(true).setTrustAll(true))
 
-        var buffer = httpClient.getNow(80, "www.sina.com.cn", "/")
-        println(buffer.toString(Charset.defaultCharset()))
-        println("12345678")
+
+//        var buffer = getNow(80, "www.sina.com.cn", "/")
+//        println(buffer.toString(Charset.defaultCharset()))
+//        println("12345678")
+//        async{
+////            getNow(9, "d","a")
+//
+//            doSomething()
+//        }
+
+        println("${Thread.currentThread()} ++++++++++++++++++++++++++++++++++++")
+        findTusi()
+    }
+//    private fun doSomething(){
+//        println()
+//    }
+
+    private suspend fun findTusi() {
+        val list = ArrayList<Int>()
+        for (i in 201..401) {
+            println("${LocalTime.now()} 开始处理https://www.smzdm.com/p$i/")
+
+            var buffer = getNow(443, "www.smzdm.com", "/p$i/")
+            var toString: String = buffer.toString(Charset.defaultCharset())
+            if (toString.indexOf("吐司") != -1) {
+                list.add(i)
+            }
+            println("${LocalTime.now()} https://www.smzdm.com/p$i/处理完毕")
+
+        }
+        list.map {
+            println("包含吐司的页面地址为https://www.smzdm.com/p$it/")
+        }
     }
 
-    private suspend fun HttpClient.getNow(port: Int, host: String, uri: String): Buffer =
-            suspendCoroutine { cont ->
-                vertx.createHttpClient(HttpClientOptions().setSsl(false).setTrustAll(true))
-                        .get(port, host, uri) { response: HttpClientResponse ->
-                            println(response.statusCode())
-                            response.bodyHandler { buffer ->
-                                cont.resume(buffer)
-                            }
+    private suspend fun getNow(port: Int, host: String, uri: String): Buffer {
+        return  suspendCoroutine { cont ->
+
+            httpClient
+                    .get(port, host, uri) { response: HttpClientResponse ->
+                        //                            println(response.headers().map { println(it) })
+                        response.bodyHandler { buffer ->
+                            println(Thread.currentThread())
+                            cont.resume(buffer)
                         }
-                        .exceptionHandler { throwable ->
-                            cont.resumeWithException(throwable)
-                        }
-                        .end()
-            }
+                    }
+                    .exceptionHandler { throwable ->
+                        cont.resumeWithException(throwable)
+                    }
+                    .end()
+        }
+    }
 
 }
 

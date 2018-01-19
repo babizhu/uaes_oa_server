@@ -58,5 +58,5 @@ fun HttpServerResponse.endSuccess(body: JsonObject) {
 
 fun HttpServerResponse.endSuccess(body: String) {
     this.putHeader("content-type", "application/json; charset=utf-8")
-            .end(JsonObject().put("result",body).encode())
+            .end(JsonObject().put("msg",body).encode())
 }

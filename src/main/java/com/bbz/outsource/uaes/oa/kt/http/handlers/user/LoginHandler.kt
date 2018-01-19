@@ -8,16 +8,18 @@ import com.bbz.outsource.uaes.oa.kt.consts.RSAKey
 import com.bbz.outsource.uaes.oa.kt.coroutineHandler
 import com.bbz.outsource.uaes.oa.kt.db.LoginDataProvider
 import com.bbz.outsource.uaes.oa.kt.http.handlers.AbstractHandler
+import com.bbz.outsource.uaes.oa.kt.http.handlers.endSuccess
 import com.bbz.outsource.uaes.oa.kt.util.Base64Utils
 import com.bbz.outsource.uaes.oa.kt.util.CustomHashStrategy
 import com.bbz.outsource.uaes.oa.kt.util.RSAUtils
 import io.vertx.core.json.JsonArray
-import io.vertx.core.json.JsonObject
 import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.auth.jwt.JWTOptions
 import io.vertx.ext.sql.SQLClient
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
+import io.vertx.kotlin.core.json.json
+import io.vertx.kotlin.core.json.obj
 
 class LoginHandler(private val jwtAuthProvider: JWTAuth, dbClient: SQLClient) : AbstractHandler() {
     private val dataProvider: LoginDataProvider = LoginDataProvider(dbClient)
@@ -44,16 +46,17 @@ class LoginHandler(private val jwtAuthProvider: JWTAuth, dbClient: SQLClient) : 
         if (errorCode.isSuccess) {
             var roles = dataProvider.queryRoles(param)
             val token = jwtAuthProvider.generateToken(
-                    JsonObject()
-                            .put("success", true)
-                            .put("message", "ok")
-                            .put("username", username)
-                            .put("roles", roles.rows.joinToString(",") { it.getString("role") }
-                            ),
-                    JWTOptions()
-                            .setSubject("uaes oa")
-                            .setIssuer("bbz company"))
-            ctx.response().putHeader("Authorization", "Bearer " + token).end(token)
+                    json {
+                        obj(
+                                "success" to true,
+                                "message" to "ok",
+                                "username" to username,
+                                "roles" to roles.rows.joinToString(",") { it.getString("role") },
+                                "database" to "uaes_oa"
+                        )
+                    },
+                    JWTOptions().setSubject("uaes oa").setIssuer("bbz company"))
+            ctx.response().putHeader("Authorization", "Bearer " + token).endSuccess(token)
         } else {
             endFail(ctx, errorCode)
         }

@@ -21,10 +21,6 @@ import java.util.*
 
 class CustomJwtImpl(private val authProvider: JWTAuth) : Handler<RoutingContext> {
 
-    init {
-    }
-
-
     private fun parseAuthHeader(headers: MultiMap): String? {
         val authorization = headers.get(HttpHeaders.AUTHORIZATION) ?: return null
         val parts = authorization.split(" ")
@@ -54,7 +50,7 @@ class CustomJwtImpl(private val authProvider: JWTAuth) : Handler<RoutingContext>
         { res ->
             if (res.succeeded()) {
                 val user = res.result()
-                var authorise = authorise(user, context)
+                val authorise = authorise(user, context)
                 if (authorise) {
                     context.setUser(user)
                     val session = context.session()

@@ -34,7 +34,7 @@ private fun MainVerticle.initHandler(mainRouter: Router) {
     mainRouter.route().handler(BodyHandler.create())
 
     mainRouter.mountSubRouter("/", LoginHandler(jwtAuthProvider,dbClient).addRouter(Router.router(vertx)))
-    mainRouter.route().handler(CustomJwtImpl(jwtAuthProvider))
+    mainRouter.route("${Consts.API_PREFIX}*").handler(CustomJwtImpl(jwtAuthProvider))
     mainRouter.route().failureHandler(errorHandler)
     dispatcherHandler(mainRouter)
     adapterReactHandler(mainRouter)//这个只能放在倒数第二的位置

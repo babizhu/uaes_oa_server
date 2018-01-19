@@ -62,42 +62,33 @@ class MainVerticle : CoroutineVerticle() {
             )
         })
 
+        createJwtProvider()
+        createHttpServer()
+        CustomJwtImpl.initRole2PermissionsMap(dbClient)
+        createHttpClient()
+//        findTusi()
+    }
+
+    private fun createHttpClient() {
+        httpClient = vertx.createHttpClient(HttpClientOptions().setVerifyHost(false).setSsl(true).setTrustAll(true))
+    }
+
+    private fun createJwtProvider() {
         val jwtAuthOptions = JWTAuthOptions()
                 .setKeyStore(KeyStoreOptions()
                         .setPath("./resources/keystore.jceks")
                         .setType("jceks")
                         .setPassword("secret"))
         jwtAuthProvider = JWTAuth.create(vertx, jwtAuthOptions)
-        createHttpServer()
-        CustomJwtImpl.initRole2PermissionsMap(dbClient)
-
-        httpClient = vertx.createHttpClient(HttpClientOptions().setVerifyHost(false).setSsl(true).setTrustAll(true))
-
-
-//        var buffer = getNow(80, "www.sina.com.cn", "/")
-//        println(buffer.toString(Charset.defaultCharset()))
-//        println("12345678")
-//        async{
-////            getNow(9, "d","a")
-//
-//            doSomething()
-//        }
-
-        println("${Thread.currentThread()} ++++++++++++++++++++++++++++++++++++")
-        findTusi()
     }
-//    private fun doSomething(){
-//        println()
-//    }
-
     private suspend fun findTusi() {
         val list = ArrayList<Int>()
         for (i in 201..401) {
             println("${LocalTime.now()} 开始处理https://www.smzdm.com/p$i/")
 
-            var buffer = getNow(443, "www.smzdm.com", "/p$i/")
-            var toString: String = buffer.toString(Charset.defaultCharset())
-            if (toString.indexOf("吐司") != -1) {
+            val buffer = getNow(443, "www.smzdm.com", "/p$i/").toString(Charset.defaultCharset())
+
+            if (buffer.indexOf("吐司") != -1) {
                 list.add(i)
             }
             println("${LocalTime.now()} https://www.smzdm.com/p$i/处理完毕")
@@ -108,23 +99,40 @@ class MainVerticle : CoroutineVerticle() {
         }
     }
 
-    private suspend fun getNow(port: Int, host: String, uri: String): Buffer {
-        return  suspendCoroutine { cont ->
+    //
+//    private suspend fun getNow1(port: Int, host: String, uri: String):Buffer{
+//        async {
+//            httpClient
+//                    .get(port, host, uri) { response: HttpClientResponse ->
+//                        //                            println(response.headers().map { println(it) })
+//                        response.bodyHandler { buffer ->
+//                            println(Thread.currentThread())
+//                            return buffer
+//                        }
+//                    }
+//                    .exceptionHandler { throwable ->
+//
+//                    }
+//                    .end()
+//        }
+//    }
+    private suspend fun getNow(port: Int, host: String, uri: String): Buffer =
+            suspendCoroutine { cont ->
 
-            httpClient
-                    .get(port, host, uri) { response: HttpClientResponse ->
-                        //                            println(response.headers().map { println(it) })
-                        response.bodyHandler { buffer ->
-                            println(Thread.currentThread())
-                            cont.resume(buffer)
+                httpClient
+                        .get(port, host, uri) { response: HttpClientResponse ->
+                            //                            println(response.headers().map { println(it) })
+                            response.bodyHandler { buffer ->
+                                println(Thread.currentThread())
+                                cont.resume(buffer)
+                            }
                         }
-                    }
-                    .exceptionHandler { throwable ->
-                        cont.resumeWithException(throwable)
-                    }
-                    .end()
-        }
-    }
+                        .exceptionHandler { throwable ->
+                            cont.resumeWithException(throwable)
+                        }
+                        .end()
+
+            }
 
 }
 

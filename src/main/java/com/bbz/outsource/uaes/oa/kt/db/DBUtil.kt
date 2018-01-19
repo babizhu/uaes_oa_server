@@ -99,12 +99,12 @@ suspend fun fluentTx(client: SQLClient, sqlAndParamsMap: Map<String, JsonArray>)
   val connection = com.bbz.outsource.uaes.oa.database.getConnection(client)
   connection.use {
       return try {
-          com.bbz.outsource.uaes.oa.database.beginTx(connection)
+          beginTx(connection)
           for ((sql, params) in sqlAndParamsMap) {
               com.bbz.outsource.uaes.oa.database.updateWithParams(connection, sql, params)
           }
 
-          com.bbz.outsource.uaes.oa.database.commitTx(connection)
+          commitTx(connection)
           true
       } catch (e: Exception) {
           com.bbz.outsource.uaes.oa.database.rollbackTx(connection)

@@ -1,43 +1,56 @@
-CREATE TABLE ask_for_leave
+create table ask_for_leave
 (
-  ids             INT AUTO_INCREMENT
-    PRIMARY KEY,
-  user            VARCHAR(50) NULL,
-  begin           INT         NULL,
-  approval_result INT         NULL,
-  approvaler      VARCHAR(50) NULL
+	ids int auto_increment
+		primary key,
+	user varchar(50) null,
+	begin int null,
+	approval_result int null,
+	approvaler varchar(50) null
 )
-  ENGINE = InnoDB;
+engine=InnoDB
+;
 
-CREATE TABLE roles_perms
+create table roles_perms
 (
-  role VARCHAR(255) NOT NULL
-    PRIMARY KEY,
-  perm VARCHAR(255) NOT NULL
+	role varchar(255) not null
+		primary key,
+	perm varchar(255) not null
 )
-  ENGINE = InnoDB;
+engine=InnoDB
+;
 
-CREATE TABLE user
+create table user
 (
-  username      VARCHAR(255) NOT NULL
-    PRIMARY KEY,
-  password      VARCHAR(255) NOT NULL,
-  password_salt VARCHAR(255) NOT NULL
+	username varchar(255) not null
+		primary key,
+	password varchar(255) not null,
+	password_salt varchar(255) not null,
+	gender tinyint default '2' null
 )
-  ENGINE = InnoDB;
+engine=InnoDB
+;
 
-CREATE TABLE user_roles
+create table user_roles
 (
-  username VARCHAR(255) NOT NULL,
-  role     VARCHAR(255) NOT NULL,
-  PRIMARY KEY (username, role),
-  CONSTRAINT fk_username
-  FOREIGN KEY (username) REFERENCES user (username),
-  CONSTRAINT fk_roles
-  FOREIGN KEY (role) REFERENCES roles_perms (role)
+	username varchar(255) not null,
+	role varchar(255) not null,
+	primary key (username, role),
+	constraint fk_username
+		foreign key (username) references user (username),
+	constraint fk_roles
+		foreign key (role) references roles_perms (role)
 )
-  ENGINE = InnoDB;
+engine=InnoDB
+;
 
-CREATE INDEX fk_roles
-  ON user_roles (role);
+create index fk_roles
+	on user_roles (role)
+;
+
+create view full_user_view as
+SELECT
+    `user_roles`.`username`      AS `username`,
+    `user_roles`.`password`      AS `password`,
+    `user_roles`.`password_salt` AS `password_salt`
+  FROM `uaes_oa`.`user` `user_roles`;
 

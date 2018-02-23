@@ -51,7 +51,7 @@ class MainVerticle : CoroutineVerticle() {
     lateinit var dbClient: SQLClient
     lateinit var httpClient: HttpClient
 
-    suspend override fun start() {
+    override suspend fun start() {
         dbClient = MySQLClient.createShared(vertx, json {
             obj(
                     "host" to "127.0.0.1",

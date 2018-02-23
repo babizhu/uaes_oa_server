@@ -25,7 +25,12 @@ class UserHandler(dbClient: SQLClient) : AbstractHandler() {
         mainRouter.route("/del").coroutineHandler { del(it) }
         mainRouter.route("/query").coroutineHandler { query(it) }
         mainRouter.route("/permisstionsQuery").coroutineHandler { permisstionsQuery(it) }
+        mainRouter.route("/test/直接跟函数的方法").handler(this::aa)
         return mainRouter
+    }
+
+    private fun aa(ctx:RoutingContext){
+        ctx.response().end("hello")
     }
 
 //    @RequirePermissions("sys:user:create")
